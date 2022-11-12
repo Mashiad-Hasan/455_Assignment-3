@@ -3,8 +3,10 @@
 # Set the path to your python3 above
 
 from gtp_connection import GtpConnection
+from gtp_connection import (POLICY_PATTERN, POLICY_RANDOM, SELECTION_RR, SELECTION_UCB)
 from board_util import GoBoardUtil
 from board import GoBoard
+
 
 class Go0:
     def __init__(self):
@@ -20,12 +22,13 @@ class Go0:
         """
         self.name = "Go0"
         self.version = 1.0
+        self.policy = POLICY_RANDOM
+        self.selection = SELECTION_RR
 
     def get_move(self, board, color):
-        return GoBoardUtil.generate_random_move(board, color, 
+        return GoBoardUtil.generate_random_move(board, color,
                                                 use_eye_filter=False)
 
-    
 
 def run():
     """
@@ -34,6 +37,7 @@ def run():
     board = GoBoard(7)
     con = GtpConnection(Go0(), board)
     con.start_connection()
+
 
 if __name__ == "__main__":
     run()
