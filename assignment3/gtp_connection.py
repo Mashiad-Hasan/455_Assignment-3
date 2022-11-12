@@ -20,7 +20,7 @@ from board_util import (
 )
 import numpy as np
 import re
-
+from board import GoBoard
 
 class GtpConnection:
     def __init__(self, go_engine, board, debug_mode=False):
@@ -52,7 +52,8 @@ class GtpConnection:
             "play": self.play_cmd,
             "gogui-rules_legal_moves":self.gogui_rules_legal_moves_cmd,
             "gogui-rules_final_result":self.gogui_rules_final_result_cmd,
-            "solve":self.solve_cmd
+            "solve":self.solve_cmd,
+            "policy_movesForPattern":self.policy_movesForPattern_cmd
         }
 
         # used for argument checking
@@ -312,6 +313,47 @@ class GtpConnection:
     def solve_cmd(self, args):
         # remove this respond and implement this method
         self.respond('Implement This for Assignment 2')
+
+    ### ASSIGNMENT #3
+    
+    ## Mashiad: Just added this GTP command to test PART 2: PATTERN-BASED FEATURES
+    ## May still be useful for other GTP commands
+
+    def policy_movesForPattern_cmd(self, args):
+        moves = GoBoardUtil.generate_legal_moves(self.board, self.board.current_player)
+        
+        move_weights = {}
+        moveslist = []
+        for move in moves:
+            weight = GoBoard.get_weight(self.board, move)
+
+            if move is None:
+                self.respond('unknown')
+                return
+            move_coord = point_to_coord(move, self.board.size)
+            move_as_string = format_point(move_coord)
+            
+            moveslist.append(move_as_string)
+            move_weights[move_as_string] = weight
+        
+        weights = list(move_weights.values())
+        total_weight = sum(weights)
+
+        move_prob = {}
+        moveslist.sort()
+
+        for move in moveslist:
+            move_prob[move] = (move_weights[move] / total_weight)
+
+        ###
+        probabilites = []
+        for move in moveslist:
+            
+            probabilites.append(str(round(move_prob[move],3)))
+
+        moves_and_probs = moveslist + probabilites
+        res = ' '.join(moves_and_probs)
+        self.respond(res)
 
 def point_to_coord(point, boardsize):
     """

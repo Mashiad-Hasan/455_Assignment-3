@@ -25,6 +25,8 @@ class Go0:
         return GoBoardUtil.generate_random_move(board, color, 
                                                 use_eye_filter=False)
 
+    
+
 def run():
     """
     start the gtp connection and wait for commands.

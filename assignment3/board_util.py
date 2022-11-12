@@ -177,3 +177,5 @@ class GoBoardUtil(object):
             board2d[row, :] = goboard.board[start : start + size]
         board2d = np.flipud(board2d)
         return board2d
+
+    

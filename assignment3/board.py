@@ -251,3 +251,41 @@ class GoBoard(object):
         if self.last2_move != None and self.last2_move != PASS:
             board_moves.append(self.last2_move)
             return 
+
+
+    ## Assignment #3
+    def get_weight(board, move):
+
+
+        base_4_order = (move - board.NS + 1,
+                        move - board.NS,
+                        move - board.NS - 1,
+                        move + 1,
+                        move - 1,
+                        move + board.NS + 1,
+                        move + board.NS,
+                        move + board.NS - 1)
+
+        base_4_address = []
+        for i in base_4_order:
+            base_4_address.append(board.get_color(i))
+   
+        base_4_string = ''.join(map(str,base_4_address))
+
+        ##convert to base 10
+        base_10_address = int(base_4_string, 4)
+        weight = GoBoard.read_weight(str(base_10_address))
+        return weight
+
+    def read_weight(addr):
+        with open(r'weights.txt') as file:
+            address_weights = file.readlines()
+        #print(lines)
+        dict = {}
+        for address_weight in address_weights:
+            i = address_weight.split(' ')
+            address = i[0]
+            weight = i[1]
+            dict[address] = float(weight)
+
+        return (dict[addr])
