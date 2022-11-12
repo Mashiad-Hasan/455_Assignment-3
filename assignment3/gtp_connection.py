@@ -21,6 +21,14 @@ from board_util import (
 import numpy as np
 import re
 from board import GoBoard
+import random
+
+
+POLICY_RANDOM = 1
+POLICY_PATTERN = 2
+SELECTION_RR = 1
+SELECTION_UCB = 2
+
 
 class GtpConnection:
     def __init__(self, go_engine, board, debug_mode=False):
@@ -53,7 +61,10 @@ class GtpConnection:
             "gogui-rules_legal_moves":self.gogui_rules_legal_moves_cmd,
             "gogui-rules_final_result":self.gogui_rules_final_result_cmd,
             "solve":self.solve_cmd,
-            "policy_movesForPattern":self.policy_movesForPattern_cmd
+            "policy_movesForPattern":self.policy_movesForPattern_cmd,
+            "policy":self.policy_cmd,
+            "selection":self.selection_cmd,
+            "policy_moves":self.policy_moves_cmd
         }
 
         # used for argument checking
@@ -354,6 +365,40 @@ class GtpConnection:
         moves_and_probs = moveslist + probabilites
         res = ' '.join(moves_and_probs)
         self.respond(res)
+
+    def policy_cmd(self, args):
+        if args[0]=="random":
+            self.go_engine.policy=POLICY_RANDOM
+        elif args[0]=="pattern":
+            self.go_engine.policy=POLICY_PATTERN
+        else:
+            self.respond("invalid policy")
+            return
+        self.respond("")
+        return
+
+
+    def selection_cmd(self, args):
+        if args[0]=="rr":
+            self.go_engine.selection=SELECTION_RR
+        elif args[0]=="ucb":
+            self.go_engine.selection=SELECTION_UCB
+        else:
+            self.respond("invalid selection")
+            return
+        self.respond("")
+        return
+
+    def policy_moves_cmd(self,args):
+        if self.go_engine.policy==POLICY_PATTERN:
+            self.policy_movesForPattern_cmd(args)
+        else:
+            moves = GoBoardUtil.generate_legal_moves(self.board, self.board.current_player)
+            moves_fmt=[format_point(point_to_coord(m, self.board.size)) for m in moves]
+            moves_fmt.sort()
+            resp=" ".join(moves_fmt)+(" {:.3f}".format(1/len(moves)))*len(moves)
+            self.respond(resp)
+        return
 
 def point_to_coord(point, boardsize):
     """
