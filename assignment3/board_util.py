@@ -10,6 +10,7 @@ import random
 Encoding of colors on and off a Go board.
 FLODDFILL is used internally for a temporary marker
 """
+
 EMPTY = 0
 BLACK = 1
 WHITE = 2
