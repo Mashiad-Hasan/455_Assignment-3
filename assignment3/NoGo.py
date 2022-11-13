@@ -26,6 +26,7 @@ class Go0:
         self.version = 1.0
         self.policy = POLICY_RANDOM
         self.selection = SELECTION_RR
+        self.sims = 10
 
     def get_move(self, board, color):
         return GoBoardUtil.generate_random_move(board, color,
