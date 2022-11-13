@@ -309,15 +309,22 @@ class GtpConnection:
         # change this method to use your solver
         board_color = args[0].lower()
         color = color_to_int(board_color)
-        move = self.go_engine.get_move(self.board, color)
-        if move is None:
+
+        if color!=self.board.current_player:
+            self.respond("Illegal move")
+            return
+
+        move = self.go_engine.get_move(self.board, color,
+                                       "rr" if self.go_engine.selection==SELECTION_RR else "ucb",
+                                       "random" if self.go_engine.policy==POLICY_RANDOM else "pattern")
+        if move == "empty" or move is None:
             self.respond('unknown')
             return
         move_coord = point_to_coord(move, self.board.size)
         move_as_string = format_point(move_coord)
         if self.board.is_legal(move, color):
             self.board.play_move(move, color)
-            self.respond(move_as_string)
+            self.respond(move_as_string.lower())
         else:
             self.respond("Illegal move: {}".format(move_as_string))
 
@@ -342,7 +349,7 @@ class GtpConnection:
                 self.respond('unknown')
                 return
             move_coord = point_to_coord(move, self.board.size)
-            move_as_string = format_point(move_coord)
+            move_as_string = format_point(move_coord).lower()
             
             moveslist.append(move_as_string)
             move_weights[move_as_string] = weight
@@ -394,9 +401,9 @@ class GtpConnection:
             self.policy_movesForPattern_cmd(args)
         else:
             moves = GoBoardUtil.generate_legal_moves(self.board, self.board.current_player)
-            moves_fmt=[format_point(point_to_coord(m, self.board.size)) for m in moves]
+            moves_fmt=[format_point(point_to_coord(m, self.board.size)).lower() for m in moves]
             moves_fmt.sort()
-            resp=" ".join(moves_fmt)+(" {:.3f}".format(1/len(moves)))*len(moves)
+            resp=" ".join(moves_fmt)+(" {:.3g}".format(1/len(moves)))*len(moves)
             self.respond(resp)
         return
 
